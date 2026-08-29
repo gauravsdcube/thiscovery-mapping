@@ -148,14 +148,20 @@ class Events
 
     public static function onRegisterPageBlocks(Event $event): void
     {
+        $module = Yii::$app->getModule('thiscovery-mapping');
+        if (!$module || !$module->getIsEnabled()) {
+            return;
+        }
         if (!$event instanceof \humhub\modules\thiscoveryPageBuilder\services\RegisterBlocksEvent) {
             return;
         }
         $type = \humhub\modules\thiscoveryMapping\blocks\MapEmbedBlock::TYPE;
-        if (isset($event->types[$type])) {
-            return;
-        }
         $event->types[$type] = \humhub\modules\thiscoveryMapping\blocks\MapEmbedBlock::class;
+        foreach ($event->palette as $item) {
+            if (($item['type'] ?? '') === $type) {
+                return;
+            }
+        }
         $event->palette[] = [
             'type' => $type,
             'icon' => 'fa-map-marker',
