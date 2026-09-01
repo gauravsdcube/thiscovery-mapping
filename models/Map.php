@@ -57,6 +57,11 @@ class Map extends ContentActiveRecord implements Searchable
     protected $managePermission = ManageMap::class;
     protected $canMove = true;
 
+    /** @var int|null contribution total for list views */
+    public $contributions_count;
+    /** @var int|null pending contribution total for list views */
+    public $pending_count;
+
     public static function tableName()
     {
         return 'thiscovery_map';
@@ -101,6 +106,15 @@ class Map extends ContentActiveRecord implements Searchable
         ];
     }
 
+    public static function visibilityShortLabels(): array
+    {
+        return [
+            self::VISIBILITY_ALL => Yii::t('ThiscoveryMappingModule.base', 'Everyone'),
+            self::VISIBILITY_OWN => Yii::t('ThiscoveryMappingModule.base', 'Own only'),
+            self::VISIBILITY_MODERATED => Yii::t('ThiscoveryMappingModule.base', 'Moderated'),
+        ];
+    }
+
     public static function geometryTypeLabels(): array
     {
         return [
@@ -141,6 +155,46 @@ class Map extends ContentActiveRecord implements Searchable
     public function getContributions(): ActiveQuery
     {
         return $this->hasMany(MapContribution::class, ['map_id' => 'id']);
+    }
+
+    /**
+     * Fill list-view counts without ActiveQuery::withCount() (HumHub content queries do not support it).
+     *
+     * @param self[] $maps
+     */
+    public static function attachListCounts(array $maps): void
+    {
+        $ids = [];
+        foreach ($maps as $map) {
+            if ((int) $map->id > 0) {
+                $ids[] = (int) $map->id;
+            }
+        }
+        $ids = array_values(array_unique($ids));
+        $totals = [];
+        $pending = [];
+        if ($ids !== []) {
+            foreach (MapContribution::find()
+                ->select(['map_id', 'cnt' => 'COUNT(*)'])
+                ->andWhere(['map_id' => $ids])
+                ->groupBy('map_id')
+                ->asArray()
+                ->all() as $row) {
+                $totals[(int) $row['map_id']] = (int) $row['cnt'];
+            }
+            foreach (MapContribution::find()
+                ->select(['map_id', 'cnt' => 'COUNT(*)'])
+                ->andWhere(['map_id' => $ids, 'status' => MapContribution::STATUS_PENDING])
+                ->groupBy('map_id')
+                ->asArray()
+                ->all() as $row) {
+                $pending[(int) $row['map_id']] = (int) $row['cnt'];
+            }
+        }
+        foreach ($maps as $map) {
+            $map->contributions_count = $totals[(int) $map->id] ?? 0;
+            $map->pending_count = $pending[(int) $map->id] ?? 0;
+        }
     }
 
     public function getLayers(): ActiveQuery
@@ -400,7 +454,8 @@ class Map extends ContentActiveRecord implements Searchable
         if ($container instanceof Space) {
             return $container->getPermissionManager($user)->can(CreateMap::class);
         }
-        return (new PermissionManager(['subject' => $user]))->can(CreateGlobalMap::class);
+        return Yii::$app->user->isAdmin()
+            || (new PermissionManager(['subject' => $user]))->can(CreateGlobalMap::class);
     }
 
     public function canManage($user = null): bool

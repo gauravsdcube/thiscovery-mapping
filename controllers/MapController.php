@@ -14,6 +14,7 @@ use yii\web\NotFoundHttpException;
 class MapController extends ContentContainerController
 {
     use MapActionsTrait;
+    use HelpTrait;
 
     protected function getAccessRules()
     {

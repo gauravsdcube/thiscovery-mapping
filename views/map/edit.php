@@ -31,9 +31,25 @@ $questionTypes = [
     'dropdown' => Yii::t('ThiscoveryMappingModule.base', 'Dropdown'),
     'radio' => Yii::t('ThiscoveryMappingModule.base', 'Choice'),
 ];
+$backUrl = Url::toIndex($map->isGlobal() ? null : ($map->content->container ?? null));
+$helpContainer = $map->isGlobal() ? null : ($map->content->container ?? null);
 ?>
 <div class="panel panel-default">
-    <div class="panel-heading"><?= Html::encode($this->title) ?></div>
+    <div class="panel-heading">
+        <?= Html::encode($this->title) ?>
+        <div class="pull-right">
+            <?= \humhub\widgets\bootstrap\Button::light(Yii::t('ThiscoveryMappingModule.base', 'Help'))
+                ->link(Url::toHelp($helpContainer, 'creators-settings'))
+                ->icon('question-circle')
+                ->sm()
+                ->loader(false) ?>
+            <?= \humhub\widgets\bootstrap\Button::light(Yii::t('ThiscoveryMappingModule.base', 'Back to maps'))
+                ->link($backUrl)
+                ->icon('arrow-left')
+                ->sm()
+                ->loader(false) ?>
+        </div>
+    </div>
     <div class="panel-body tm-edit">
         <p class="tm-edit__lead">
             <?= Yii::t('ThiscoveryMappingModule.base', 'Only a title is required. The rest can stay at the defaults until you need them.') ?>

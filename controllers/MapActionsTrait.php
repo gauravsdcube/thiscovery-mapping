@@ -41,6 +41,7 @@ trait MapActionsTrait
                 $maps[] = $map;
             }
         }
+        Map::attachListCounts($maps);
         if (!$probe->canCreate() && !$probe->canManage() && !$maps) {
             throw new ForbiddenHttpException();
         }
@@ -48,6 +49,8 @@ trait MapActionsTrait
         return $this->render('@thiscovery-mapping/views/map/index', [
             'maps' => $maps,
             'canCreate' => $probe->canCreate(),
+            'canConfigure' => false,
+            'canViewHelp' => method_exists($this, 'canViewHelp') ? $this->canViewHelp() : false,
             'container' => method_exists($this, 'getContentContainer') ? $this->contentContainer : null,
         ]);
     }

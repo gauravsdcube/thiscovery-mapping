@@ -117,9 +117,10 @@ class Events
             'label' => Yii::t('ThiscoveryMappingModule.base', 'Thiscovery Mapping'),
             'id' => 'thiscovery-mapping-admin',
             'icon' => 'map-marker',
-            'url' => ['/thiscovery-mapping/global/index'],
+            'url' => ['/thiscovery-mapping/admin/index'],
             'sortOrder' => 556,
-            'isActive' => ControllerHelper::isActivePath('thiscovery-mapping'),
+            'isActive' => ControllerHelper::isActivePath('thiscovery-mapping', 'admin')
+                || ControllerHelper::isActivePath('thiscovery-mapping', 'global'),
             'isVisible' => true,
         ]));
     }

@@ -39,7 +39,7 @@ class Url
     public static function toIndex($container = null): string
     {
         if ($container === null) {
-            return BaseUrl::to(['/thiscovery-mapping/global/index']);
+            return BaseUrl::to(['/thiscovery-mapping/admin/index']);
         }
         return $container->createUrl('/thiscovery-mapping/map/index');
     }
@@ -117,5 +117,17 @@ class Url
     public static function toSettings(): string
     {
         return BaseUrl::to(['/thiscovery-mapping/admin/settings']);
+    }
+
+    public static function toHelp($container = null, ?string $page = null): string
+    {
+        $params = [];
+        if ($page) {
+            $params['page'] = $page;
+        }
+        if ($container === null) {
+            return BaseUrl::to(array_merge(['/thiscovery-mapping/admin/help'], $params));
+        }
+        return $container->createUrl('/thiscovery-mapping/map/help', $params);
     }
 }

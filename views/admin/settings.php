@@ -1,6 +1,7 @@
 <?php
 
 use humhub\modules\thiscoveryMapping\assets\MappingFormAsset;
+use humhub\modules\thiscoveryMapping\helpers\Url;
 use humhub\modules\thiscoveryMapping\models\ModuleSettings;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
@@ -14,6 +15,12 @@ $this->title = Yii::t('ThiscoveryMappingModule.base', 'Thiscovery Mapping');
 <div class="panel panel-default">
     <div class="panel-heading">
         <?= Yii::t('ThiscoveryMappingModule.base', '<strong>Thiscovery Mapping</strong> configuration') ?>
+        <span class="pull-right">
+            <a href="<?= Html::encode(Url::toHelp(null, 'admins')) ?>">
+                <i class="fa fa-question-circle" aria-hidden="true"></i>
+                <?= Yii::t('ThiscoveryMappingModule.base', 'Help') ?>
+            </a>
+        </span>
     </div>
     <div class="panel-body">
         <p class="help-block">

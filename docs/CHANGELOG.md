@@ -2,6 +2,13 @@
 
 All notable changes to this module are documented in this file.
 
+## 1.0.3 (September 1, 2026)
+
+- Fix: Network map list uses the Administration layout and table UI, matching Thiscovery Forms and Page Builder
+- Fix: Map list counts load without ActiveQuery withCount(), which HumHub content queries do not support
+- Fix: Opened maps include a Back to maps control; network maps stay in Administration so the list is reachable
+- Enh: In-product Help for administrators and map creators, matching Forms and Page Builder
+
 ## 1.0.2 (September 1, 2026)
 
 - Change: When Thiscovery Navigation is enabled, maps are added to the top bar there instead of from this module

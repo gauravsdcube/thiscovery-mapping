@@ -5,20 +5,35 @@
  * @license AGPL-3.0-or-later
  */
 
+use humhub\modules\thiscoveryMapping\assets\MappingAsset;
 use humhub\modules\thiscoveryMapping\helpers\Url;
 use humhub\modules\thiscoveryMapping\models\Map;
 use humhub\modules\thiscoveryMapping\models\MapContribution;
+use humhub\widgets\bootstrap\Button;
 use yii\helpers\Html;
 
 /** @var Map $map */
 /** @var MapContribution[] $pending */
 
+MappingAsset::register($this);
+
 $this->title = Yii::t('ThiscoveryMappingModule.base', 'Moderate') . ': ' . $map->title;
+$backUrl = Url::toIndex($map->isGlobal() ? null : ($map->content->container ?? null));
 ?>
 <div class="panel panel-default">
-    <div class="panel-heading">
+    <div class="panel-heading tm-view-heading">
         <?= Html::encode($this->title) ?>
-        <a class="pull-right" href="<?= Html::encode(Url::toView($map)) ?>"><?= Yii::t('ThiscoveryMappingModule.base', 'Back to map') ?></a>
+        <div class="tm-view-heading__actions">
+            <?= Button::light(Yii::t('ThiscoveryMappingModule.base', 'Back to maps'))
+                ->link($backUrl)
+                ->icon('arrow-left')
+                ->sm()
+                ->loader(false) ?>
+            <?= Button::light(Yii::t('ThiscoveryMappingModule.base', 'Back to map'))
+                ->link(Url::toView($map))
+                ->sm()
+                ->loader(false) ?>
+        </div>
     </div>
     <div class="panel-body">
         <?php if (!$pending): ?>

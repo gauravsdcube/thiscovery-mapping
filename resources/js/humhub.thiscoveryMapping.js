@@ -440,4 +440,16 @@ humhub.module('thiscoveryMapping', function (module, require, $) {
     module.init = function () {
         boot(document);
     };
+    module.initListMaps = function () {
+        $(document).off('change.tmListSubmit').on('change.tmListSubmit', 'select[data-tm-auto-submit]', function () {
+            var form = $(this).closest('form');
+            if (form.length) {
+                form.trigger('submit');
+            }
+        });
+    };
+    module.export({
+        init: module.init,
+        initListMaps: module.initListMaps
+    });
 });
