@@ -3,7 +3,7 @@
   "name": "Thiscovery Mapping",
   "description": "Interactive and participatory maps for spaces and the network. Leaflet drawing, Stadia basemaps, GeoJSON storage, page-builder embed, and a Thiscovery Forms map question.",
   "keywords": ["thiscovery", "map", "leaflet", "geojson", "participatory", "gis"],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "humhub": {
     "minVersion": "1.18"
   },

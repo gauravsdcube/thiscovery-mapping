@@ -2,6 +2,10 @@
 
 All notable changes to this module are documented in this file.
 
+## 1.0.2 (September 1, 2026)
+
+- Change: When Thiscovery Navigation is enabled, maps are added to the top bar there instead of from this module
+
 ## 1.0.1 (August 29, 2026)
 
 - Fix: Page Builder map block registers only when Mapping is enabled; safer palette registration

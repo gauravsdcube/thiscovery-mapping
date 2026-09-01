@@ -69,6 +69,11 @@ class Events
 
     public static function onTopMenuInit($event): void
     {
+        if (class_exists(\humhub\modules\thiscoveryNavigation\helpers\Navigation::class)
+            && \humhub\modules\thiscoveryNavigation\helpers\Navigation::isActive()) {
+            return;
+        }
+
         $module = Yii::$app->getModule('thiscovery-mapping');
         if (!$module || !$module->getIsEnabled()) {
             return;
