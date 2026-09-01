@@ -143,6 +143,20 @@ $helpContainer = $map->isGlobal() ? null : ($map->content->container ?? null);
                     </label>
                     <p class="help-block"><?= Yii::t('ThiscoveryMappingModule.base', 'Recommended when many pins overlap. Clusters open into individual pins as people zoom in. Lines and areas are not clustered.') ?></p>
                 </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="show_search" value="1" <?= $map->showSearch() ? 'checked' : '' ?>>
+                        <?= Yii::t('ThiscoveryMappingModule.base', 'Show place search') ?>
+                    </label>
+                    <p class="help-block"><?= Yii::t('ThiscoveryMappingModule.base', 'Lets people jump the map to a postcode or address. Leave off unless you need it on this map.') ?></p>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="show_filters" value="1" <?= $map->showFilters() ? 'checked' : '' ?>>
+                        <?= Yii::t('ThiscoveryMappingModule.base', 'Show filters') ?>
+                    </label>
+                    <p class="help-block"><?= Yii::t('ThiscoveryMappingModule.base', 'Adds type, date, and category filters above the map, including on pages where the map is embedded.') ?></p>
+                </div>
             </section>
 
             <section class="tm-edit__section">
@@ -156,13 +170,20 @@ $helpContainer = $map->isGlobal() ? null : ($map->content->container ?? null);
                     <?php endforeach; ?>
                 </div>
                 <button type="button" class="btn btn-sm btn-default" data-tm-add="categories"><?= Yii::t('ThiscoveryMappingModule.base', 'Add category') ?></button>
+                <div class="checkbox" style="margin-top:12px">
+                    <label>
+                        <input type="checkbox" name="require_category" value="1" <?= $map->requireCategorySetting() ? 'checked' : '' ?>>
+                        <?= Yii::t('ThiscoveryMappingModule.base', 'Category is required') ?>
+                    </label>
+                    <p class="help-block"><?= Yii::t('ThiscoveryMappingModule.base', 'People must pick a category when they save a drawing. Only applies if you have listed at least one category.') ?></p>
+                </div>
             </section>
 
             <section class="tm-edit__section">
                 <h4><?= Yii::t('ThiscoveryMappingModule.base', 'Extra questions') ?>
                     <span class="text-muted"><?= Yii::t('ThiscoveryMappingModule.base', '(optional)') ?></span>
                 </h4>
-                <p class="help-block"><?= Yii::t('ThiscoveryMappingModule.base', 'Asked in a small form when someone saves a drawing, alongside an optional comment. Keep this to a few short questions. For a full survey, use a Thiscovery Form instead.') ?></p>
+                <p class="help-block"><?= Yii::t('ThiscoveryMappingModule.base', 'Asked in a small form when someone saves a drawing, not as a survey on the map page. Keep this to a few short questions. For a full survey, use a Thiscovery Form instead.') ?></p>
                 <div id="tm-questions">
                     <?php foreach ($questions as $i => $q): ?>
                         <?= $this->render('_question_row', ['i' => $i, 'q' => $q, 'questionTypes' => $questionTypes]) ?>

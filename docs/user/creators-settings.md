@@ -52,13 +52,23 @@ Each map can override the site default from Configuration.
 
 **Group nearby pins into clusters** is recommended when many pins overlap. Clusters open into individual pins as people zoom in. Lines and areas are not clustered.
 
+**Show place search** is off unless you tick it. When on, people can jump the map to a postcode or address. Leave it off unless this map needs that. The site must also have Stadia place search enabled in Configuration.
+
+**Show filters** is off unless you tick it. When on, type, date, and category filters appear above the map, including on pages where the map is embedded.
+
 ## Categories (optional)
 
 Let people tag a drawing, for example Housing or Transport. Each category has its own colour on the map. Skip this if every drawing is the same kind of thing.
 
+**Category is required** — tick this if people must pick a category when they save. It only applies if you have listed at least one category.
+
 ## Extra questions (optional)
 
-Asked in a small form when someone saves a drawing, alongside an optional comment. Keep this to a few short questions (short text, long text, dropdown, or choice).
+These are **not** a survey on the map page. They appear in the panel **after someone draws**, alongside an optional comment. Keep this to a few short questions (short text, long text, dropdown, or choice).
+
+For dropdown or choice, add each option with **Add choice**. People pick one of those when they save.
+
+If you can contribute, a short hint on the map reminds people to answer those questions in the panel.
 
 For a full survey, use a Thiscovery Form instead of extra questions on the map.
 

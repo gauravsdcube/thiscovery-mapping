@@ -12,11 +12,11 @@ If **Thiscovery Page Builder** is enabled, the studio palette includes a **Map**
 4. Set the height if you need a taller or shorter canvas.
 5. Save and publish the page.
 
-Visitors use the embedded map the same way as the map page: pan, zoom, filter, and draw if they have permission. If Mapping is turned off, Page Builder shows that the map block is unavailable instead of adding it.
+Visitors pan and zoom. They can draw if they have permission. Place search and type/date/category filters appear only if you enabled them on **Edit map**. If Mapping is turned off, Page Builder shows that the map block is unavailable instead of adding it.
 
 ## Map question on a Thiscovery Form
 
-If **Thiscovery Forms** is enabled, a form can include a **map** question. Respondents draw on a small map as their answer (usually a pin). Place search and the starting view follow Mapping configuration.
+If **Thiscovery Forms** is enabled, a form can include a **map** question. Respondents draw on a small map as their answer (usually a pin). In the form builder you can set the starting view, drawing types, and **basemap style**. Place search on the question uses Mapping configuration. The drawing is stored with that response; it is not added to a shared participatory map.
 
 Mapping must stay enabled for people to answer map questions. Existing map questions are kept if Mapping is later turned off; new map questions cannot be added until it is on again.
 

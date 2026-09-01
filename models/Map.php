@@ -483,6 +483,9 @@ class Map extends ContentActiveRecord implements Searchable
         if (!$user) {
             return false;
         }
+        if (Yii::$app->user->isAdmin() || $this->canManage($user)) {
+            return true;
+        }
         $container = null;
         try {
             $container = $this->content->getContainer();
@@ -493,6 +496,26 @@ class Map extends ContentActiveRecord implements Searchable
             return $container->getPermissionManager($user)->can(ContributeMap::class);
         }
         return (new PermissionManager(['subject' => $user]))->can(ContributeGlobalMap::class);
+    }
+
+    public function showSearch(): bool
+    {
+        return (int)$this->getSetting('show_search', 0) === 1;
+    }
+
+    public function showFilters(): bool
+    {
+        return (int)$this->getSetting('show_filters', 0) === 1;
+    }
+
+    public function requireCategory(): bool
+    {
+        return $this->requireCategorySetting() && $this->getCategories() !== [];
+    }
+
+    public function requireCategorySetting(): bool
+    {
+        return (int)$this->getSetting('require_category', 0) === 1;
     }
 
     public static function pickerOptions($container = null): array

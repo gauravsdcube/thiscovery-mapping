@@ -277,6 +277,7 @@ humhub.module('thiscoveryMapping', function (module, require, $) {
         });
 
         bindSearch(root, map, cfg);
+        bindDrawer(root, map);
         reload();
         setTimeout(function () { map.invalidateSize(); }, 200);
     }
@@ -319,57 +320,211 @@ humhub.module('thiscoveryMapping', function (module, require, $) {
         });
     }
 
+    function str(cfg, key, fallback) {
+        return (cfg.strings && cfg.strings[key]) || fallback;
+    }
+
+    function setDrawer(root, title, content, onClose) {
+        var drawer = root.querySelector('[data-tm-drawer]');
+        var body = root.querySelector('[data-tm-drawer-body]');
+        var heading = root.querySelector('[data-tm-drawer-title]');
+        if (!drawer || !body) {
+            return null;
+        }
+        if (heading) {
+            heading.textContent = title || '';
+        }
+        body.innerHTML = '';
+        if (typeof content === 'string') {
+            body.innerHTML = content;
+        } else if (content) {
+            body.appendChild(content);
+        }
+        drawer.hidden = false;
+        root._tmDrawerOnClose = onClose || null;
+        return body;
+    }
+
+    function closeDrawer(root, skipCallback) {
+        var drawer = root.querySelector('[data-tm-drawer]');
+        var body = root.querySelector('[data-tm-drawer-body]');
+        var heading = root.querySelector('[data-tm-drawer-title]');
+        if (drawer) {
+            drawer.hidden = true;
+        }
+        if (heading) {
+            heading.textContent = '';
+        }
+        if (body) {
+            body.innerHTML = '';
+        }
+        var onClose = root._tmDrawerOnClose;
+        root._tmDrawerOnClose = null;
+        if (!skipCallback && typeof onClose === 'function') {
+            onClose();
+        }
+    }
+
+    function bindDrawer(root, map) {
+        var close = root.querySelector('[data-tm-close]');
+        if (!close || close._tmBound) {
+            return;
+        }
+        close._tmBound = true;
+        close.addEventListener('click', function () {
+            closeDrawer(root);
+        });
+    }
+
+    function fieldBlock(label, required, requiredLabel, inner) {
+        return '<div class="tm-field"' + (required ? ' data-required="1"' : '') + '>' +
+            '<div class="tm-field__head"><span class="tm-field__label">' + HtmlEncode(label) + '</span>' +
+            (required ? '<span class="tm-field__req">' + HtmlEncode(requiredLabel) + '</span>' : '') +
+            '</div>' + inner + '<p class="tm-field__error" hidden></p></div>';
+    }
+
+    function questionControl(q, cfg) {
+        var key = HtmlEncode(q.key);
+        if (q.type === 'textarea') {
+            return '<textarea class="form-control" data-q="' + key + '" rows="3"></textarea>';
+        }
+        if (q.type === 'radio') {
+            if (!(q.options || []).length) {
+                return '<p class="tm-field__empty">' + HtmlEncode(str(cfg, 'noChoices', 'This question has no choices yet.')) + '</p>';
+            }
+            var html = '<div class="tm-choices" data-q="' + key + '" data-tm-choice-group role="radiogroup">';
+            (q.options || []).forEach(function (o, i) {
+                var oid = 'tmq-' + key + '-' + i;
+                html += '<label class="tm-choice" for="' + oid + '">' +
+                    '<input type="radio" id="' + oid + '" name="tmq-' + key + '" value="' + HtmlEncode(o) + '">' +
+                    '<span>' + HtmlEncode(o) + '</span></label>';
+            });
+            return html + '</div>';
+        }
+        if (q.type === 'dropdown') {
+            var html = '<select class="form-control" data-q="' + key + '"><option value="">' +
+                HtmlEncode(str(cfg, 'choose', 'Choose…')) + '</option>';
+            (q.options || []).forEach(function (o) {
+                html += '<option value="' + HtmlEncode(o) + '">' + HtmlEncode(o) + '</option>';
+            });
+            return html + '</select>';
+        }
+        return '<input class="form-control" type="text" data-q="' + key + '">';
+    }
+
+    function readValue(el) {
+        if (el.getAttribute('data-tm-choice-group') != null) {
+            var on = el.querySelector('input:checked');
+            return on ? on.value : '';
+        }
+        return el.value;
+    }
+
+    function saveTitleFor(gj, cfg) {
+        var type = (gj.geometry && gj.geometry.type) || '';
+        if (type === 'Point') {
+            return str(cfg, 'savePoint', 'Save this pin');
+        }
+        if (type === 'LineString') {
+            return str(cfg, 'saveLine', 'Save this line');
+        }
+        if (type === 'Polygon') {
+            return str(cfg, 'saveArea', 'Save this area');
+        }
+        return str(cfg, 'saveTitle', 'Save this drawing');
+    }
+
     function promptSave(root, map, cfg, layer, existing, reload) {
         var gj = layer.toGeoJSON();
         var wrap = document.createElement('div');
         wrap.className = 'tm-form';
-        var html = '<label>Comment</label><textarea class="form-control" data-f="comment" rows="2"></textarea>';
+        var html = '<p class="tm-form__intro">' + HtmlEncode(str(cfg, 'saveIntro', 'Add a comment if you like, then answer any questions before you save.')) + '</p>';
+        html += fieldBlock(
+            str(cfg, 'comment', 'Comment'),
+            false,
+            '',
+            '<textarea class="form-control" data-f="comment" rows="3" placeholder="' + HtmlEncode(str(cfg, 'commentHint', 'Optional. A short note about this drawing.')) + '"></textarea>'
+        );
         if (cfg.categories && cfg.categories.length) {
-            html += '<label>Category</label><select class="form-control" data-f="category"><option value=""></option>';
+            var catRequired = !!cfg.requireCategory;
+            var cat = '<select class="form-control" data-f="category"><option value="">' +
+                HtmlEncode(str(cfg, 'chooseCategory', 'Choose a category')) + '</option>';
             cfg.categories.forEach(function (c) {
-                html += '<option value="' + HtmlEncode(c.key) + '">' + HtmlEncode(c.name) + '</option>';
+                cat += '<option value="' + HtmlEncode(c.key) + '">' + HtmlEncode(c.name) + '</option>';
             });
-            html += '</select>';
+            cat += '</select>';
+            html += fieldBlock(str(cfg, 'category', 'Category'), catRequired, str(cfg, 'required', 'Required'), cat);
         }
         (cfg.questions || []).forEach(function (q) {
-            html += '<label>' + HtmlEncode(q.label) + (q.required ? ' *' : '') + '</label>';
-            if (q.type === 'textarea') {
-                html += '<textarea class="form-control" data-q="' + HtmlEncode(q.key) + '" rows="2"></textarea>';
-            } else if (q.type === 'dropdown' || q.type === 'radio') {
-                html += '<select class="form-control" data-q="' + HtmlEncode(q.key) + '"><option value=""></option>';
-                (q.options || []).forEach(function (o) {
-                    html += '<option>' + HtmlEncode(o) + '</option>';
-                });
-                html += '</select>';
-            } else {
-                html += '<input class="form-control" data-q="' + HtmlEncode(q.key) + '">';
-            }
+            html += fieldBlock(q.label, !!q.required, str(cfg, 'required', 'Required'), questionControl(q, cfg));
         });
-        html += '<div class="tm-form__actions"><button type="button" class="btn btn-primary btn-sm" data-save>Save</button> <button type="button" class="btn btn-default btn-sm" data-cancel>Cancel</button></div>';
+        html += '<div class="tm-form__actions">' +
+            '<button type="button" class="btn btn-primary" data-save>' + HtmlEncode(str(cfg, 'save', 'Save')) + '</button>' +
+            '<button type="button" class="btn btn-default" data-cancel>' + HtmlEncode(str(cfg, 'cancel', 'Cancel')) + '</button>' +
+            '</div>';
         wrap.innerHTML = html;
-        layer.bindPopup(wrap, { maxWidth: 320, closeOnClick: false }).openPopup();
+
+        var discarded = false;
+        function discard() {
+            if (discarded) {
+                return;
+            }
+            discarded = true;
+            if (map && layer && map.hasLayer(layer)) {
+                map.removeLayer(layer);
+            }
+        }
+
+        setDrawer(root, saveTitleFor(gj, cfg), wrap, discard);
+
         wrap.querySelector('[data-save]').addEventListener('click', function () {
+            var missing = false;
+            wrap.querySelectorAll('.tm-field[data-required]').forEach(function (field) {
+                var el = field.querySelector('[data-q], [data-f]');
+                var err = field.querySelector('.tm-field__error');
+                var val = el ? String(readValue(el) || '').trim() : '';
+                var bad = !val;
+                var message = field.querySelector('[data-f="category"]')
+                    ? str(cfg, 'categoryRequired', 'Please choose a category.')
+                    : str(cfg, 'requiredMissing', 'Please answer this question.');
+                field.classList.toggle('is-invalid', bad);
+                if (err) {
+                    err.hidden = !bad;
+                    err.textContent = bad ? message : '';
+                }
+                if (bad) {
+                    missing = true;
+                }
+            });
+            if (missing) {
+                return;
+            }
             var responses = {};
             wrap.querySelectorAll('[data-q]').forEach(function (el) {
-                responses[el.getAttribute('data-q')] = el.value;
+                responses[el.getAttribute('data-q')] = readValue(el);
             });
             var cat = wrap.querySelector('[data-f="category"]');
+            var btn = wrap.querySelector('[data-save]');
+            btn.disabled = true;
             saveFeature(cfg, {
                 feature: gj,
                 comment: wrap.querySelector('[data-f="comment"]').value,
                 category: cat ? cat.value : '',
                 responses: responses
             }).then(function () {
-                map.closePopup();
-                map.removeLayer(layer);
+                discarded = true;
+                closeDrawer(root, true);
+                if (map && layer && map.hasLayer(layer)) {
+                    map.removeLayer(layer);
+                }
                 reload();
             }).catch(function () {
-                wrap.querySelector('[data-save]').textContent = 'Could not save';
+                btn.disabled = false;
+                btn.textContent = str(cfg, 'couldNotSave', 'Could not save. Try again.');
             });
         });
         wrap.querySelector('[data-cancel]').addEventListener('click', function () {
-            map.closePopup();
-            map.removeLayer(layer);
+            closeDrawer(root);
         });
     }
 
@@ -378,15 +533,17 @@ humhub.module('thiscoveryMapping', function (module, require, $) {
     }
 
     function openDetail(root, cfg, id) {
-        var drawer = root.querySelector('[data-tm-drawer]');
-        var body = root.querySelector('[data-tm-drawer-body]');
-        if (!drawer || !body) {
-            return;
-        }
+        closeDrawer(root);
+        setDrawer(root, str(cfg, 'details', 'Drawing'), '', null);
         client.get(cfg.urls.detail, {data: { featureId: id }}).then(function (resp) {
-            body.innerHTML = (resp.data && resp.data.html) || resp.html || resp.output || '';
-            drawer.hidden = false;
-        }).catch(function () {});
+            var html = (resp.data && resp.data.html) || resp.html || resp.output || '';
+            var body = root.querySelector('[data-tm-drawer-body]');
+            if (body) {
+                body.innerHTML = html;
+            }
+        }).catch(function () {
+            closeDrawer(root, true);
+        });
     }
 
     function bindSearch(root, map, cfg) {
@@ -424,10 +581,6 @@ humhub.module('thiscoveryMapping', function (module, require, $) {
                     list.hidden = rows.length === 0;
                 });
             }, 280);
-        });
-        root.querySelector('[data-tm-close]') && root.querySelector('[data-tm-close]').addEventListener('click', function () {
-            var d = root.querySelector('[data-tm-drawer]');
-            if (d) d.hidden = true;
         });
     }
 

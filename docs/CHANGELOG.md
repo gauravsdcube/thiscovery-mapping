@@ -2,6 +2,16 @@
 
 All notable changes to this module are documented in this file.
 
+## 1.0.4 (September 1, 2026)
+
+- Enh: Saving a drawing opens a side panel instead of a small popup; choice questions are tappable chips
+- Enh: Category can be required on Edit map so people must pick one when they save a drawing
+- Enh: Extra-question choices on Edit map are a list with Add choice, not a cramped one-line box
+- Fix: Extra questions appear only after someone draws and saves, not as a survey on the map page; admins and map managers can always draw so they can reach that save box
+- Change: Place search and type/date/category filters are off unless you enable them on Edit map (including when the map is embedded on a page)
+- Enh: A short hint on the map when extra questions are configured and the viewer can contribute
+- Enh: Form map questions can use a per-question basemap style (Thiscovery Forms 1.21.5)
+
 ## 1.0.3 (September 1, 2026)
 
 - Fix: Network map list uses the Administration layout and table UI, matching Thiscovery Forms and Page Builder

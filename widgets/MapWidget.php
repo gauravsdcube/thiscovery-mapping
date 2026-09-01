@@ -51,8 +51,13 @@ class MapWidget extends Widget
     public function clientConfig(): array
     {
         $module = Module::instance();
-        $basemap = (new BasemapService())->leafletConfig($this->map);
+        $basemap = (new BasemapService())->leafletConfig(
+            $this->map,
+            $this->mode === 'form' ? (string)($this->formConfig['style'] ?? '') : null
+        );
         $geocodeOn = $module && $module->getGeocoderProvider() === Module::GEOCODER_STADIA;
+        $showSearch = $this->map ? $this->map->showSearch() : false;
+        $showFilters = $this->map ? $this->map->showFilters() : false;
 
         if ($this->mode === 'form') {
             return [
@@ -98,11 +103,37 @@ class MapWidget extends Widget
             'zoom' => (int)$map->zoom,
             'allowedTypes' => $map->getAllowedGeometryTypes(),
             'categories' => $map->getCategories(),
+            'requireCategory' => $map->requireCategory(),
             'questions' => $map->getQuestions(),
             'clustering' => (bool)$map->clustering,
             'visibility' => $map->visibility_mode,
             'canContribute' => $map->canContribute(),
             'canManage' => $map->canManage(),
+            'showSearch' => $showSearch,
+            'showFilters' => $showFilters,
+            'contributeHint' => ($map->canContribute() && $map->getQuestions())
+                ? Yii::t('ThiscoveryMappingModule.base', 'Draw on the map, then answer the questions in the panel that opens.')
+                : '',
+            'strings' => [
+                'saveTitle' => Yii::t('ThiscoveryMappingModule.base', 'Save this drawing'),
+                'savePoint' => Yii::t('ThiscoveryMappingModule.base', 'Save this pin'),
+                'saveLine' => Yii::t('ThiscoveryMappingModule.base', 'Save this line'),
+                'saveArea' => Yii::t('ThiscoveryMappingModule.base', 'Save this area'),
+                'saveIntro' => Yii::t('ThiscoveryMappingModule.base', 'Add a comment if you like, then answer any questions before you save.'),
+                'comment' => Yii::t('ThiscoveryMappingModule.base', 'Comment'),
+                'commentHint' => Yii::t('ThiscoveryMappingModule.base', 'Optional. A short note about this drawing.'),
+                'category' => Yii::t('ThiscoveryMappingModule.base', 'Category'),
+                'choose' => Yii::t('ThiscoveryMappingModule.base', 'Choose…'),
+                'chooseCategory' => Yii::t('ThiscoveryMappingModule.base', 'Choose a category'),
+                'categoryRequired' => Yii::t('ThiscoveryMappingModule.base', 'Please choose a category.'),
+                'save' => Yii::t('ThiscoveryMappingModule.base', 'Save'),
+                'cancel' => Yii::t('ThiscoveryMappingModule.base', 'Cancel'),
+                'required' => Yii::t('ThiscoveryMappingModule.base', 'Required'),
+                'requiredMissing' => Yii::t('ThiscoveryMappingModule.base', 'Please answer this question.'),
+                'couldNotSave' => Yii::t('ThiscoveryMappingModule.base', 'Could not save. Try again.'),
+                'details' => Yii::t('ThiscoveryMappingModule.base', 'Drawing'),
+                'noChoices' => Yii::t('ThiscoveryMappingModule.base', 'This question has no choices yet.'),
+            ],
             'basemap' => $basemap,
             'layers' => $layers,
             'urls' => [
@@ -111,7 +142,7 @@ class MapWidget extends Widget
                 'delete' => Url::toDeleteFeature($map),
                 'detail' => Url::toFeatureDetail($map),
                 'layer' => Url::toLayerData($map),
-                'geocode' => $geocodeOn ? Url::toGeocode() : '',
+                'geocode' => ($geocodeOn && $showSearch) ? Url::toGeocode() : '',
             ],
             'csrf' => Yii::$app->request->csrfToken,
             'privacy' => $basemap['provider'] === Module::PROVIDER_STADIA

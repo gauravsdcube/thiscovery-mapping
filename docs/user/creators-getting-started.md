@@ -28,9 +28,9 @@ New maps inherit the site default centre, zoom, and basemap style from Configura
 
 ## Open, edit, and share
 
-**Open** shows the map as people will use it: search a place, filter drawings, and (if they have permission) add pins, lines, or areas.
+**Open** shows the map as people will use it: pan and zoom, and (if they have permission) add pins, lines, or areas. Place search and filters appear only if you enabled them on Edit map.
 
-**Edit** is the settings form: title, starting view, drawing types, visibility, categories, extra questions, and background layers.
+**Edit** is the settings form: title, starting view, drawing types, search, filters, visibility, categories, extra questions, and background layers.
 
 The map page URL can be shared. You can also embed the map on a Thiscovery page or add a map question to a Thiscovery Form.
 

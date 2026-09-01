@@ -100,6 +100,9 @@ trait MapActionsTrait
             $map->setCategoriesFromPost((array)$request->post('categories', []));
             $map->setQuestionsFromPost((array)$request->post('questions', []));
             $map->setSetting('basemap_style', (string)$request->post('basemap_style', ''));
+            $map->setSetting('show_search', $request->post('show_search') ? 1 : 0);
+            $map->setSetting('show_filters', $request->post('show_filters') ? 1 : 0);
+            $map->setSetting('require_category', $request->post('require_category') ? 1 : 0);
 
             if ($map->isNewRecord) {
                 $map->content->visibility = Content::VISIBILITY_PUBLIC;
@@ -229,6 +232,10 @@ trait MapActionsTrait
         $category = preg_replace('/[^a-z0-9_\-]/', '', strtolower((string)($payload['category'] ?? '')));
         $validKeys = array_column($map->getCategories(), 'key');
         $row->category_key = ($category !== '' && in_array($category, $validKeys, true)) ? $category : null;
+        if ($map->requireCategory() && $validKeys && $row->category_key === null) {
+            Yii::$app->response->statusCode = 422;
+            return ['ok' => false, 'error' => Yii::t('ThiscoveryMappingModule.base', 'Please choose a category.')];
+        }
         $row->comment = mb_substr(trim((string)($payload['comment'] ?? '')), 0, 4000);
         $row->setResponses($this->sanitizeResponses($map, $payload['responses'] ?? []));
 

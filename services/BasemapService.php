@@ -16,12 +16,12 @@ class BasemapService
      * Leaflet tile config. API keys are only appended for Stadia when set;
      * restrict the key by HTTP referrer in the Stadia dashboard.
      */
-    public function leafletConfig(?Map $map = null): array
+    public function leafletConfig(?Map $map = null, ?string $styleOverride = null): array
     {
         $module = Module::instance();
         $attribution = $module ? $module->getAttribution() : Module::STADIA_DEFAULT_ATTRIBUTION;
         $provider = $module ? $module->getBasemapProvider() : Module::PROVIDER_STADIA;
-        $style = $map ? $map->getBasemapStyle() : ($module ? $module->getBasemapStyle() : Module::STADIA_DEFAULT_STYLE);
+        $style = $this->resolveStyle($map, $styleOverride);
 
         if ($provider === Module::PROVIDER_CUSTOM && $module && $module->getCustomTileUrl() !== '') {
             return [
@@ -66,5 +66,18 @@ class BasemapService
             $cfg['urlTemplate'] = $url;
         }
         return $cfg;
+    }
+
+    public function resolveStyle(?Map $map = null, ?string $styleOverride = null): string
+    {
+        $override = trim((string)$styleOverride);
+        if ($override !== '' && isset(\humhub\modules\thiscoveryMapping\models\ModuleSettings::styleLabels()[$override])) {
+            return $override;
+        }
+        if ($map) {
+            return $map->getBasemapStyle();
+        }
+        $module = Module::instance();
+        return $module ? $module->getBasemapStyle() : Module::STADIA_DEFAULT_STYLE;
     }
 }

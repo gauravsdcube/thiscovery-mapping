@@ -64,7 +64,7 @@ class HelpService
             'creators-settings' => [
                 'file' => 'creators-settings.md',
                 'title' => Yii::t('ThiscoveryMappingModule.base', 'Map settings'),
-                'summary' => Yii::t('ThiscoveryMappingModule.base', 'Title, starting view, drawing types, visibility, categories, questions, and layers.'),
+                'summary' => Yii::t('ThiscoveryMappingModule.base', 'Title, starting view, drawing types, search, filters, visibility, categories, questions, and layers.'),
                 'icon' => 'wrench',
             ],
             'creators-contributing' => [

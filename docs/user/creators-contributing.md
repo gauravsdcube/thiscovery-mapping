@@ -6,14 +6,15 @@ This page is for how people add drawings, who can see them, and how you review a
 
 People need **Contribute to maps** (space) or **Contribute to global maps** (network). Map managers can always edit the map itself. Guests cannot draw.
 
-On the map, people with permission get drawing tools for the types you allowed: pins, lines, and areas. They can search for a place, then save. An optional comment and any extra questions you added appear when they save.
+On the map, people with permission get drawing tools for the types you allowed: pins, lines, and areas. After they draw, a panel opens for an optional comment, a category if you set those, and any extra questions. Choice questions show as tappable options. Place search is available only if you enabled it on Edit map.
 
 ## Exploring the map
 
 Anyone who can view the map can:
 
-- Search for a place, postcode, or address
-- Filter by category, drawing type, and date
+- Pan and zoom
+- Search for a place, postcode, or address — only if **Show place search** is on for that map
+- Filter by category, drawing type, and date — only if **Show filters** is on for that map
 - Open a drawing for details, likes, and comments
 - Use clusters to work through overlapping pins
 

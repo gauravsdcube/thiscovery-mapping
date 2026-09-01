@@ -20,6 +20,54 @@ humhub.module('thiscoveryMapping.form', function (module, require, $) {
             return;
         }
         dest.insertAdjacentHTML('beforeend', tpl.innerHTML.replace(/__I__/g, String(nextIndex(dest))));
+        if (kind === 'questions') {
+            var rows = dest.querySelectorAll('.tm-edit__question');
+            if (rows.length) {
+                syncQuestionOptions(rows[rows.length - 1]);
+            }
+        }
+    }
+
+    function syncQuestionOptions(row) {
+        var typeEl = row.querySelector('[data-tm-question-type]');
+        var opts = row.querySelector('[data-tm-question-options]');
+        if (!opts) {
+            return;
+        }
+        var type = typeEl ? typeEl.value : '';
+        var show = type === 'dropdown' || type === 'radio';
+        opts.hidden = !show;
+        if (show) {
+            var list = opts.querySelector('[data-tm-choice-list]');
+            if (list && !list.querySelector('.tm-edit__choice')) {
+                addChoiceRow(list, false);
+                addChoiceRow(list, false);
+            }
+        }
+    }
+
+    function addChoiceRow(list, focus) {
+        if (!list) {
+            return;
+        }
+        var row = document.createElement('div');
+        row.className = 'tm-edit__choice';
+        var input = document.createElement('input');
+        input.className = 'form-control';
+        input.name = list.getAttribute('data-name') || '';
+        input.placeholder = 'Choice';
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tm-edit__choice-remove';
+        btn.setAttribute('data-tm-choice-remove', '1');
+        btn.setAttribute('aria-label', 'Remove');
+        btn.innerHTML = '&times;';
+        row.appendChild(input);
+        row.appendChild(btn);
+        list.appendChild(row);
+        if (focus) {
+            input.focus();
+        }
     }
 
     function onAddClick(e) {
@@ -300,7 +348,7 @@ humhub.module('thiscoveryMapping.form', function (module, require, $) {
             canvas._tmReady = false;
             return;
         }
-        var styleEl = wrap.querySelector('[name="basemap_style"]');
+        var styleEl = wrap.querySelector('[data-tm-style], [name="basemap_style"]');
         var style = styleEl ? styleEl.value : cfg.style;
         var tiles = Lref.tileLayer(tileUrl(cfg, style), {
             attribution: cfg.attribution || '',
@@ -373,8 +421,8 @@ humhub.module('thiscoveryMapping.form', function (module, require, $) {
                 }
             });
         $(document)
-            .off('change.thiscoveryMappingStyle', '[name="basemap_style"]')
-            .on('change.thiscoveryMappingStyle', '[name="basemap_style"]', function () {
+            .off('change.thiscoveryMappingStyle', '[name="basemap_style"], [data-tm-style]')
+            .on('change.thiscoveryMappingStyle', '[name="basemap_style"], [data-tm-style]', function () {
                 var wrap = coordRoot(this);
                 restylePreview(wrap, this.value);
             });
@@ -389,5 +437,35 @@ humhub.module('thiscoveryMapping.form', function (module, require, $) {
             .on('click.thiscoveryMappingPalette', '[data-cf-palette-type]', function () {
                 setTimeout(bootPreviews, 120);
             });
+        $(document)
+            .off('change.thiscoveryMappingQuestionType', '[data-tm-question-type]')
+            .on('change.thiscoveryMappingQuestionType', '[data-tm-question-type]', function () {
+                var row = this.closest('.tm-edit__question');
+                if (row) {
+                    syncQuestionOptions(row);
+                }
+            });
+        $(document)
+            .off('click.thiscoveryMappingChoiceAdd', '[data-tm-choice-add]')
+            .on('click.thiscoveryMappingChoiceAdd', '[data-tm-choice-add]', function (e) {
+                e.preventDefault();
+                var wrap = this.closest('[data-tm-question-options]');
+                var list = wrap ? wrap.querySelector('[data-tm-choice-list]') : null;
+                addChoiceRow(list, true);
+            });
+        $(document)
+            .off('click.thiscoveryMappingChoiceRemove', '[data-tm-choice-remove]')
+            .on('click.thiscoveryMappingChoiceRemove', '[data-tm-choice-remove]', function (e) {
+                e.preventDefault();
+                var list = this.closest('[data-tm-choice-list]');
+                var row = this.closest('.tm-edit__choice');
+                if (row) {
+                    row.remove();
+                }
+                if (list && !list.querySelector('.tm-edit__choice')) {
+                    addChoiceRow(list, true);
+                }
+            });
+        document.querySelectorAll('.tm-edit__question').forEach(syncQuestionOptions);
     };
 });
